@@ -1,0 +1,20 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+
+.normal {
+    text-align: center;
+    border: 1px solid black;
+    background: #dcdce4;
+    height: 25px;
+}
+
+.multiple {
+    float: left;
+    width: calc(100% / 2)
+}
+
+.multiple_end{
+    clear: both;
+}

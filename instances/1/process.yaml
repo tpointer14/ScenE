@@ -1,0 +1,76 @@
+process:
+    properties:
+      name: "first process"
+      description: "here is what we want to describe"
+    dataelements:
+      x: 5
+      y: 'hi'
+    endpoints:
+      e1: url1
+      e2: url2
+    flow:
+      - key: a1
+        label: "1. Call"
+        endpoint: http://127.0.0.1:5000/test
+        method: post
+        arguments:
+          test: world
+          x: hi
+      - key: t156
+        time: 10
+      - key: loop1
+        pre-condition: False
+        flow:
+          - key: a2
+            label: "2. Call"
+            endpoint: http://127.0.0.1:5000/test
+            method: post
+            arguments:
+              test: world
+              x: hi
+          - key: t3
+            time: 10
+          - key: a3
+            label: "3. Call"
+            endpoint: http://127.0.0.1:5000/test
+            method: post
+            arguments:
+              test: world
+              x: hi
+      - key: exclusive1
+        paths:
+          p1:
+            entry_condition: True
+            flow:
+              - key: a4
+                label: "4. Call"
+                endpoint: http://127.0.0.1:5000/test
+                method: post
+              - key: t2
+                time: 180
+              - key: a5
+                label: "5. Call"
+                endpoint: http://127.0.0.1:5000/test
+                method: post
+          p2:
+            entry_condition: default
+            flow:
+              - key: a6
+                label: "6. Call"
+                endpoint: http://127.0.0.1:5000/test
+                method: post
+              - key: a7
+                label: "7. Call"
+                endpoint: http://127.0.0.1:5000/test
+                method: post
+      - key: a8
+        label: "8. Call"
+        endpoint: http://127.0.0.1:5000/test
+        method: post
+            
+
+
+        
+      
+          
+              
