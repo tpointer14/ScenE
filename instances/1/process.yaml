@@ -9,7 +9,8 @@ process:
       e1: url1
       e2: url2
     flow:
-      - key: a1
+      - key: a1 # e.g. hash aller felder id: hash aller felder ; type
+        type: call
         label: "1. Call"
         endpoint: http://127.0.0.1:5000/test
         method: post
@@ -17,56 +18,57 @@ process:
           test: world
           x: hi
       - key: t156
+        type: time
         time: 10
       - key: loop1
+        type: loop
         pre-condition: False
         flow:
           - key: a2
+            type: call
             label: "2. Call"
             endpoint: http://127.0.0.1:5000/test
             method: post
-            arguments:
-              test: world
-              x: hi
+            arguments: {}
           - key: t3
-            time: 10
+            type: time
+            time: 15
           - key: a3
+            type: call
             label: "3. Call"
             endpoint: http://127.0.0.1:5000/test
             method: post
-            arguments:
-              test: world
-              x: hi
+            arguments: {}
       - key: exclusive1
+        type: exclusive
         paths:
           p1:
             entry_condition: True
             flow:
-              - key: a4
-                label: "4. Call"
-                endpoint: http://127.0.0.1:5000/test
-                method: post
-              - key: t2
-                time: 180
-              - key: a5
-                label: "5. Call"
-                endpoint: http://127.0.0.1:5000/test
-                method: post
-          p2:
-            entry_condition: default
-            flow:
               - key: a6
+                type: call
                 label: "6. Call"
                 endpoint: http://127.0.0.1:5000/test
                 method: post
+                arguments: {}
               - key: a7
+                type: call
                 label: "7. Call"
                 endpoint: http://127.0.0.1:5000/test
                 method: post
+                arguments: {}
+              - key: ksghaugh
+                type: time
+                time: 20
+          p2:
+            entry_condition: default
+            flow: []
       - key: a8
+        type: call
         label: "8. Call"
         endpoint: http://127.0.0.1:5000/test
         method: post
+        arguments: {}
             
 
 

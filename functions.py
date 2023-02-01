@@ -6,7 +6,7 @@ def loadProcess(id):
         try:
             process = list(yaml.load_all(stream, Loader=SafeLoader))[0] 
         except yaml.YAMLError as exc:
-            print(exc)
+            raise Exception("Sorry, something went wrong when loading the template") 
     return process
 
 def loadEmptyTemplate():

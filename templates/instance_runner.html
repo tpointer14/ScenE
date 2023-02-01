@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Scene</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="/static/js/script.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <input type="hidden" id="instance_id" value="{{ instance_id }}">
+    <script>
+      instance_id = document.getElementById("instance_id").value
+      var source = new EventSource("{{ url_for('sse.stream') }}");
+      source.addEventListener('highlight_current_event', function(event) {
+        // var elems = document.querySelectorAll(".active");
+        // console.log(elems);
+        // [].forEach.call(elems, function(el) {
+        //   el.classList.remove("active");
+        // });
+          var data = JSON.parse(event.data);
+          document.getElementById(data.event).style = 'background: green;';
+      }, false);
+      var source = new EventSource("{{ url_for('sse.stream') }}");
+      source.addEventListener('livetime', function(event) {
+          var data = JSON.parse(event.data);  
+          console.log(data);
+          $("#gametime").html(data.livetime)
+      }, false);
+      source.addEventListener('error', function(event) {
+          alert("Failed to connect to event stream. Is Redis running?");
+      }, false);
+
+
+    $(document).on('submit','#gametime-form',function(e){
+    e.preventDefault();
+    $.ajax({type:'POST', url:'/runner/'+instance_id+'/gametime/?value=' + $("#id12").val()})
+    });
+
+    $(document).on('submit','#interval-form',function(e){
+        console.log($("#id1234").val());
+        e.preventDefault();
+        $.ajax({type:'POST', url:'/runner/'+instance_id+'/interval/?interval=' + $("#id1234").val()})
+    });
+
+    $(document).on('submit','#pause-form',function(e){
+        e.preventDefault();
+        $.ajax({type:'POST', url:'/runner/'+instance_id+'/pause/'})
+    });
+
+    $(document).on('submit','#fire-form',function(e){
+        e.preventDefault();
+        $.ajax({ type:'POST', url:'/runner/'+instance_id+'/fire/' })
+    });
+
+    $(document).on('submit','#jumpto-form',function(e){
+        e.preventDefault();
+        $.ajax({ type:'POST', url:'/runner/'+instance_id+'/jumpto/' })
+    });
+
+    $(document).on('submit','#kill-form',function(e){
+        e.preventDefault();
+        $.ajax({ type:'POST', url:'/runner/'+instance_id+'/kill/' })
+    });
+
+    </script>
+    <div>
+      <form id="startInstance">
+        <button type="submit">Start</button>
+      </form>
+    </div>
+    <div class="data">
+      GAMETIME: <p id="gametime"></p>
+      INTERVAL: <p id="gameinterval"></p>
+  </div>
+  <form id="gametime-form">
+      <input type = "text" name = "gametime" id = "id12"/>
+      <button type="submit">change gametime</button>
+  </form>
+  <form id="interval-form">
+      <input type = "text" name = "interval" id = "id1234"/>
+      <button type="submit">change interval</button>
+  </form>
+  <form id="pause-form">
+      <button type="submit">Pause</button>
+  </form>
+  <form id="fire-form">
+      <button type="submit">Fire</button>
+  </form>
+  <form id="jumpto-form">
+      <button type="submit">Jumpto</button>
+  </form>
+  <form id="kill-form">
+      <button type="submit">Kill</button>
+  </form>
+    <div id="mymodell" style="width: 500px;">
+      {% macro buildFlow(flow) %}
+      {% for event in flow %}
+        {% if(event['type'] == 'call') %}
+
+          <div id="{{ event['key'] }}" class="normal">{{ event['label'] }}</div>
+
+        {% elif(event['type'] == 'time') %}
+
+          <div id="{{ event['key'] }}" class="normal">{{ event['time'] }}</div>
+
+        {% elif(event['type'] == 'loop') %}
+
+          <div id="{{ event['key'] }}">
+            <div id="{{ event['key'] + '_start'}}" class="normal">Start Loop</div>
+                {{ buildFlow(event['flow']) }}
+            <div id="{{ event['key'] + '_end'}}" class="normal">End Loop</div>
+          </div>
+        
+        {% elif(event['type'] == 'exclusive') %}
+
+          <div id="{{ event['key'] }}">
+            <div id="{{ event['key'] + '_start'}}" class="normal">Start Exclusive</div>
+              {% for p_key in event['paths'] %}
+              <div id="{{ event['key'] + '_' +  p_key }}" class="multiple">
+                <div id="{{ event['key'] + '_' +  p_key + '_ec'}}" class="normal">{{ event['paths'][p_key]['entry_condition'] }}</div>
+                {{ buildFlow(event['paths'][p_key]['flow']) }}
+              </div>
+              {% endfor %}
+            <div id="{{ event['key'] + '_end'}}" class="normal multiple_end">End Exclusive</div>
+          </div>
+
+        {% endif %}
+      {% endfor %}
+      {% endmacro %}
+      <div id="pm_start" class="normal">Start</div>
+      {{ buildFlow(process['process']['flow']) }}
+      <div id="pm_end" class="normal">End</div>
+    </div>
+</body>
+</html>
